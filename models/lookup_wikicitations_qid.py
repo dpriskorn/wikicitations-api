@@ -1,7 +1,7 @@
 import logging
 
 from pydantic import BaseModel
-from wikibaseintegrator import wbi_config, WikibaseIntegrator, wbi_helpers
+from wikibaseintegrator import wbi_config
 from wikibaseintegrator.wbi_helpers import execute_sparql_query
 
 import config
@@ -38,7 +38,6 @@ class LookupWikicitationsQid(BaseModel):
             """
             result = execute_sparql_query(query=query)
             console.print(result)
-            # TODO parse the result and get the wcdqid out
             wcdqids = self.wikibase.extract_item_ids(sparql_result=result)
             logger.info(f"Found {wcdqids}")
             for wcdqid in wcdqids:
