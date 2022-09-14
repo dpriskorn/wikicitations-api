@@ -33,7 +33,7 @@ class LookupWikicitationsQid(BaseModel):
             prefix wcd: <{self.wikibase.rdf_prefix}/entity/>
             prefix wcdt: <{self.wikibase.rdf_prefix}/prop/direct/>
                 SELECT ?item WHERE {{
-                  ?item wcdt:{property} wcd:{wdqid}.
+                  ?item wcdt:{property} "{wdqid}".
                 }}
             """
             result = execute_sparql_query(query=query)
