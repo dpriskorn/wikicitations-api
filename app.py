@@ -22,7 +22,7 @@ class LookupByWikidataQid(Resource):
     def get(self, qid=""):
         if qid:
             lwq = LookupWikicitationsQid()
-            return lwq.lookup(wdqid=qid), 200
+            return lwq.lookup_via_query_service(wdqid=qid), 200
         else:
             return "No Wikidata QID was given", 400
 
