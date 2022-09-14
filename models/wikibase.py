@@ -1,3 +1,5 @@
+from typing import Dict, Optional, Iterable
+
 from pydantic import BaseModel, validate_arguments
 
 
@@ -55,3 +57,24 @@ class Wikibase(BaseModel):
             return f"{self.wikibase_url}/wiki/Item:{item_id}"
         else:
             return f"{self.wikibase_url}/wiki/{item_id}"
+
+    @validate_arguments
+    def __extract_wcdqs_json_entity_id__(
+        self, data: Dict, sparql_variable: str = "item"
+    ) -> str:
+        """We default to "item" as sparql value because it is customary in the Wikibase ecosystem"""
+        return str(
+            data[sparql_variable]["value"].replace(self.rdf_entity_prefix, "")
+        )
+
+    @validate_arguments
+    def extract_item_ids(self, sparql_result: Optional[Dict]) -> Iterable[str]:
+        """Yield item ids from a sparql result"""
+        if sparql_result:
+            yielded = 0
+            for binding in sparql_result["results"]["bindings"]:
+                if item_id := self.__extract_wcdqs_json_entity_id__(data=binding):
+                    yielded += 1
+                    yield item_id
+            if number_of_bindings := len(sparql_result["results"]["bindings"]):
+                logger.info(f"Yielded {yielded} bindings out of {number_of_bindings}")
