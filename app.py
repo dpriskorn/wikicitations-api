@@ -18,7 +18,6 @@ api = Api(app)
 
 
 class LookupByWikidataQid(Resource):
-
     def get(self, qid=""):
         if qid:
             lwq = LookupWikicitationsQid()
@@ -26,8 +25,9 @@ class LookupByWikidataQid(Resource):
         else:
             return "No Wikidata QID was given", 400
 
-#api.add_resource(LookupByLabel, "/lookup-by-label/<str:label>")
+
+# api.add_resource(LookupByLabel, "/lookup-by-label/<str:label>")
 api.add_resource(LookupByWikidataQid, "/wikidata-qid/<string:qid>")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

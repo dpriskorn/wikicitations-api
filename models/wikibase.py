@@ -1,17 +1,19 @@
+import logging
 from typing import Dict, Optional, Iterable
 
 from pydantic import BaseModel, validate_arguments
 
+logger = logging.getLogger(__name__)
 
 class Wikibase(BaseModel):
     """This is a parent class for the wikibases we support
     We define all the properties here to be able to use them in the subclasses"""
 
-    #botpassword: str
+    # botpassword: str
     item_prefixed_wikibase = True
     query_service_url: str
     title: str
-    #user_name: str
+    # user_name: str
     wikibase_cloud_wikibase: bool = True
     wikibase_url: str
 
@@ -63,9 +65,7 @@ class Wikibase(BaseModel):
         self, data: Dict, sparql_variable: str = "item"
     ) -> str:
         """We default to "item" as sparql value because it is customary in the Wikibase ecosystem"""
-        return str(
-            data[sparql_variable]["value"].replace(self.rdf_entity_prefix, "")
-        )
+        return str(data[sparql_variable]["value"].replace(self.rdf_entity_prefix, ""))
 
     @validate_arguments
     def extract_item_ids(self, sparql_result: Optional[Dict]) -> Iterable[str]:
