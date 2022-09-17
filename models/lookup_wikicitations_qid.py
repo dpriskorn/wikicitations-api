@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 from pydantic import BaseModel
 from wikibaseintegrator import wbi_config
@@ -6,6 +7,7 @@ from wikibaseintegrator.wbi_helpers import execute_sparql_query
 
 import config
 from helpers import console
+from models.enums import Return
 from models.wikicitations_wikibase import WikiCitationsWikibase
 
 logger = logging.getLogger(__name__)
@@ -24,7 +26,7 @@ class LookupWikicitationsQid(BaseModel):
         wbi_config.config["MEDIAWIKI_INDEX_URL"] = wikibase.mediawiki_index_url
         wbi_config.config["SPARQL_ENDPOINT_URL"] = wikibase.sparql_endpoint_url
 
-    def lookup_via_query_service(self, wdqid="") -> str:
+    def lookup_via_query_service(self, wdqid="") -> Union[Return, str]:
         """This looks up the WDQID via the query service. It is slower than using cirrussearch"""
         if wdqid:
             if self.wikibase.is_valid_qid(qid=wdqid):
@@ -39,16 +41,18 @@ class LookupWikicitationsQid(BaseModel):
                     }}
                 """
                 result = execute_sparql_query(query=query)
-                console.print(result)
+                if config.loglevel == logging.DEBUG:
+                    console.print(result)
                 wcdqids = self.wikibase.extract_item_ids(sparql_result=result)
-                logger.info(f"Found {wcdqids}")
+                # logger.info(f"Found {wcdqids}")
                 for wcdqid in wcdqids:
                     # We only ever care about the first
                     return wcdqid
+                return Return.NO_MATCH
             else:
-                return "not a valid QID"
+                return Return.INVALID
         else:
-            return "no wdqid given"
+            return Return.NO_QID
 
     def lookup_via_cirrussearch(self, wdqid=""):
         """This does not work because the WikibaseCirrusSearch
@@ -57,7 +61,6 @@ class LookupWikicitationsQid(BaseModel):
             "This does not work because the WikibaseCirrusSearch "
             "extension is not enabled yet on our Wikibases in Wikibase.cloud"
         )
-        # # TODO check if valid
         # self.__setup_wikibase_integrator_configuration__()
         # wbi = WikibaseIntegrator()
         # data = {
