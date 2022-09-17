@@ -8,7 +8,6 @@ from models.lookup_wikicitations_qid import LookupWikicitationsQid
 logging.basicConfig(level=config.loglevel)
 
 
-
 class TestLookupWikicitationsQid(TestCase):
     # def test_lookup_via_cirrussearch((self):
     #     lwq = LookupWikicitationsQid()

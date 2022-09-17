@@ -5,6 +5,7 @@ from pydantic import BaseModel, validate_arguments
 
 logger = logging.getLogger(__name__)
 
+
 class Wikibase(BaseModel):
     """This is a parent class for the wikibases we support
     We define all the properties here to be able to use them in the subclasses"""
