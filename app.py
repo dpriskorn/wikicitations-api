@@ -12,7 +12,7 @@ from flask_restful import Api, Resource
 import config
 from models.enums import Return
 from models.lookup_wikicitations_qid import LookupWikicitationsQid
-from models.send_job_to_rabbitmq import SendJobToRabbitmq
+from models.send_job_to_celery import SendJobToCelery
 
 logging.basicConfig(level=config.loglevel)
 
@@ -40,7 +40,7 @@ class AddJobToQueue(Resource):
     @staticmethod
     def get(qid=""):
         if qid:
-            queue = SendJobToRabbitmq()
+            queue = SendJobToCelery()
             return queue.publish_job(wdqid=qid), 200
         else:
             return "No Wikidata QID was given", 400
