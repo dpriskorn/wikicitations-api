@@ -39,9 +39,10 @@ class LookupWikicitationsQid(BaseModel):
                     }}
                 """
                 result = execute_sparql_query(query=query)
-                console.print(result)
+                if config.loglevel == logging.DEBUG:
+                    console.print(result)
                 wcdqids = self.wikibase.extract_item_ids(sparql_result=result)
-                logger.info(f"Found {wcdqids}")
+                # logger.info(f"Found {wcdqids}")
                 for wcdqid in wcdqids:
                     # We only ever care about the first
                     return wcdqid
@@ -57,7 +58,6 @@ class LookupWikicitationsQid(BaseModel):
             "This does not work because the WikibaseCirrusSearch "
             "extension is not enabled yet on our Wikibases in Wikibase.cloud"
         )
-        # # TODO check if valid
         # self.__setup_wikibase_integrator_configuration__()
         # wbi = WikibaseIntegrator()
         # data = {
