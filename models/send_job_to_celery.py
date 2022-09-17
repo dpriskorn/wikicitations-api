@@ -4,6 +4,7 @@ from models.wikicitations_wikibase import WikiCitationsWikibase
 
 class SendJobToCelery:
     wikibase = WikiCitationsWikibase()
+
     def __add_job_to_work_queue__(self):
         raise NotImplementedError()
 

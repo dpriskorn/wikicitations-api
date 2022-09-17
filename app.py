@@ -35,7 +35,6 @@ class LookupByWikidataQid(Resource):
             return Return.NO_QID.value, 400
 
 
-
 class AddJobToQueue(Resource):
     @staticmethod
     def get(qid=""):
@@ -44,6 +43,7 @@ class AddJobToQueue(Resource):
             return queue.publish_job(wdqid=qid), 200
         else:
             return "No Wikidata QID was given", 400
+
 
 api.add_resource(LookupByWikidataQid, "/wikidata-qid/<string:qid>")
 api.add_resource(AddJobToQueue, "/add-job/<string:qid>")
