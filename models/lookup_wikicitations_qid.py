@@ -6,10 +6,10 @@ from wikibaseintegrator.wbi_helpers import execute_sparql_query
 
 import config
 from helpers import console
-from models.exceptions import MissingInformationError
 from models.wikicitations_wikibase import WikiCitationsWikibase
 
 logger = logging.getLogger(__name__)
+
 
 class LookupWikicitationsQid(BaseModel):
     wikibase = WikiCitationsWikibase()
@@ -27,30 +27,36 @@ class LookupWikicitationsQid(BaseModel):
     def lookup_via_query_service(self, wdqid="") -> str:
         """This looks up the WDQID via the query service. It is slower than using cirrussearch"""
         if wdqid:
-            self.__setup_wikibase_integrator_configuration__()
-            property = self.wikibase.WIKIDATA_QID
-            query = f"""
-            prefix wcd: <{self.wikibase.rdf_prefix}/entity/>
-            prefix wcdt: <{self.wikibase.rdf_prefix}/prop/direct/>
-                SELECT ?item WHERE {{
-                  ?item wcdt:{property} "{wdqid}".
-                }}
-            """
-            result = execute_sparql_query(query=query)
-            console.print(result)
-            wcdqids = self.wikibase.extract_item_ids(sparql_result=result)
-            logger.info(f"Found {wcdqids}")
-            for wcdqid in wcdqids:
-                # We only ever care about the first
-                return wcdqid
+            if self.wikibase.is_valid_qid(qid=wdqid):
+                self.__setup_wikibase_integrator_configuration__()
+                property = self.wikibase.WIKIDATA_QID
+                # We uppercase the QID because the SPARQL string matching is probably case-sensitive
+                query = f"""
+                prefix wcd: <{self.wikibase.rdf_prefix}/entity/>
+                prefix wcdt: <{self.wikibase.rdf_prefix}/prop/direct/>
+                    SELECT ?item WHERE {{
+                      ?item wcdt:{property} "{wdqid.upper()}".
+                    }}
+                """
+                result = execute_sparql_query(query=query)
+                console.print(result)
+                wcdqids = self.wikibase.extract_item_ids(sparql_result=result)
+                logger.info(f"Found {wcdqids}")
+                for wcdqid in wcdqids:
+                    # We only ever care about the first
+                    return wcdqid
+            else:
+                return "not a valid QID"
         else:
-            raise MissingInformationError("no wdqid given")
+            return "no wdqid given"
 
     def lookup_via_cirrussearch(self, wdqid=""):
         """This does not work because the WikibaseCirrusSearch
         extension is not enabled yet on our Wikibases in Wikibase.cloud"""
-        raise Exception("This does not work because the WikibaseCirrusSearch "
-                        "extension is not enabled yet on our Wikibases in Wikibase.cloud")
+        raise Exception(
+            "This does not work because the WikibaseCirrusSearch "
+            "extension is not enabled yet on our Wikibases in Wikibase.cloud"
+        )
         # # TODO check if valid
         # self.__setup_wikibase_integrator_configuration__()
         # wbi = WikibaseIntegrator()
