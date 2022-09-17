@@ -4,7 +4,7 @@ from models.enums import Return
 from models.send_job_to_celery import SendJobToCelery
 
 
-class TestSendJobToRabbitmq(TestCase):
+class TestSendJobToCelery(TestCase):
     def test_publish_job_missing_qid(self):
         queue = SendJobToCelery()
         assert queue.publish_job() == Return.NO_QID
