@@ -50,7 +50,7 @@ class LookupWikicitationsQid(BaseModel):
                     return wcdqid
                 return Return.NO_MATCH
             else:
-                return Return.INVALID
+                return Return.INVALID_QID
         else:
             return Return.NO_QID
 
