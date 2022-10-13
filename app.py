@@ -4,18 +4,21 @@ a Wikipedia article and the corresponding Wikicitations item
 https://rapidapi.com/blog/how-to-build-an-api-in-python/
 """
 import logging
-from typing import Union
+from typing import Union, Optional
 
-from flask import Flask
-from flask_restful import Api, Resource
+from flask import Flask, request
+from flask_restful import Api, Resource, abort
 
 import config
+from helpers import console
+from models.add_job_schema import AddJobSchema
 from models.enums import Return
+from models.job import Job
 from models.lookup_wikicitations_qid import LookupWikicitationsQid
 from models.send_job_to_article_queue import SendJobToArticleQueue
 
 logging.basicConfig(level=config.loglevel)
-
+logger = logging.getLogger(__name__)
 app = Flask(__name__)
 api = Api(app)
 
@@ -36,24 +39,45 @@ class LookupByWikidataQid(Resource):
 
 
 class AddJobToQueue(Resource):
-    @staticmethod
-    def get(language_code: str = "", title: str = "", wikimedia_site: str = ""):
+    schema = AddJobSchema()
+    job: Optional[Job]
+    
+    def get(self):
+        self.__validate_and_get_job__()
         # TODO handle URL encoding of the title
-        if language_code == "en" and title and wikimedia_site == "wikipedia":
-            queue = SendJobToArticleQueue(language_code=language_code, title=title, wikimedia_site=wikimedia_site)
-            return queue.publish_to_article_queue(), 200
+        if self.job.lang == "en" and self.job.title and self.job.site == "wikipedia":
+            queue = SendJobToArticleQueue(language_code=self.job.lang, title=self.job.title, wikimedia_site=self.job.site)
+            logger.info("Publishing to queue")
+            if self.job.testing:
+                return 'ok', 200
+            else:
+                return queue.publish_to_article_queue(), 200
         else:
             # Something was not valid, return a meaningful error
-            if language_code != "en":
+            logger.error("did not get what we need")
+            if self.job.lang != "en":
                 return "Only en language code is supported", 400
-            if title == "":
+            if self.job.title == "":
                 return "Title was missing", 400
-            if wikimedia_site != "wikipedia":
+            if self.job.site != "wikipedia":
                 return "Only 'wikipedia' site is supported", 400
 
+    def __validate_and_get_job__(self):
+        self.__validate__()
+        self.__parse_into_job__()
+
+    def __validate__(self):
+        errors = self.schema.validate(request.args)
+        if errors:
+            abort(400, error=str(errors))
+
+    def __parse_into_job__(self):
+        console.print(request.args)
+        self.job = self.schema.load(request.args)
+        console.print(self.job.dict())
 
 api.add_resource(LookupByWikidataQid, "/wikidata-qid/<string:qid>")
-api.add_resource(AddJobToQueue, "/add-job?lang=<string:language_code>&site=<string:wikimedia_site>&title=<string:title>")
+api.add_resource(AddJobToQueue, "/add-job") #?lang=<string:language_code>&site=<string:wikimedia_site>&title=<string:title>")
 
 if __name__ == "__main__":
     app.run(debug=True)

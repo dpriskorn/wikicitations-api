@@ -12,6 +12,7 @@ class SendJobToArticleQueue(BaseModel):
     language_code: str
     wikimedia_site: str
     title: str
+    testing: bool = False
 
     def publish_to_article_queue(self):
         logger.debug("publish_to_article_queue: Running")
@@ -22,10 +23,11 @@ class SendJobToArticleQueue(BaseModel):
         )
 
         logger.info(f"Publishing message with {data}")
-        work_queue = WorkQueue()
-        work_queue.publish(
-            message=bytes(
-                json.dumps(data),
-                "utf-8",
+        if not self.testing:
+            work_queue = WorkQueue()
+            work_queue.publish(
+                message=bytes(
+                    json.dumps(data),
+                    "utf-8",
+                )
             )
-        )
