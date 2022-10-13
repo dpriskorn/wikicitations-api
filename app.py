@@ -53,7 +53,7 @@ class AddJobToQueue(Resource):
 
 
 api.add_resource(LookupByWikidataQid, "/wikidata-qid/<string:qid>")
-api.add_resource(AddJobToQueue, "/add-job/<string:language_code>/<string:wikimedia_site>/title")
+api.add_resource(AddJobToQueue, "/add-job?lang=<string:language_code>&site=<string:wikimedia_site>&title=<string:title>")
 
 if __name__ == "__main__":
     app.run(debug=True)

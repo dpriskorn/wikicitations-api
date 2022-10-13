@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "wikicitations-api"
+version = "0.1.0"
+description = ""
+authors = ["Dennis Priskorn <68460690+dpriskorn@users.noreply.github.com>"]
+license = "GPLv3+"
+readme = "README.md"
+packages = [{include = "wikicitations_api"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<=3.11"
+wikibaseintegrator = "^0.12.1"
+Flask = "^2.2.2"
+Flask-RESTful = "^0.3.9"
+pydantic = "^1.10.2"
+rich = "^12.6.0"
+pika = "^1.3.0"
+marshmallow = "^3.18.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
