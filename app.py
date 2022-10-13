@@ -20,7 +20,7 @@ from models.send_job_to_article_queue import SendJobToArticleQueue
 logging.basicConfig(level=config.loglevel)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
-api = Api(app)
+api = Api(app, prefix='/v1')
 
 
 class LookupByWikidataQid(Resource):
