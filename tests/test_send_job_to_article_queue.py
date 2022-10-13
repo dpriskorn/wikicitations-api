@@ -11,5 +11,5 @@ class TestSendJobToArticleQueue(TestCase):
             queue = SendJobToArticleQueue() # type: ignore # mypy: ignore
 
     def test_publish_job(self):
-        queue = SendJobToArticleQueue(language_code="en", wikimedia_site="wikipedia", title="Test")
+        queue = SendJobToArticleQueue(language_code="en", wikimedia_site="wikipedia", title="Test", testing=True)
         queue.publish_to_article_queue()
