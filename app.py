@@ -20,7 +20,7 @@ from models.send_job_to_article_queue import SendJobToArticleQueue
 logging.basicConfig(level=config.loglevel)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
-api = Api(app, prefix='/v1')
+api = Api(app, prefix="/v1")
 
 
 class LookupByWikidataQid(Resource):
@@ -42,15 +42,19 @@ class LookupByWikidataQid(Resource):
 class AddJobToQueue(Resource):
     schema = AddJobSchema()
     job: Optional[Job]
-    
+
     def get(self):
         self.__validate_and_get_job__()
         # TODO handle URL encoding of the title
         if self.job.lang == "en" and self.job.title and self.job.site == "wikipedia":
-            queue = SendJobToArticleQueue(language_code=self.job.lang, title=self.job.title, wikimedia_site=self.job.site)
+            queue = SendJobToArticleQueue(
+                language_code=self.job.lang,
+                title=self.job.title,
+                wikimedia_site=self.job.site,
+            )
             logger.info("Publishing to queue")
             if self.job.testing:
-                return 'ok', 200
+                return "ok", 200
             else:
                 return queue.publish_to_article_queue(), 200
         else:
@@ -77,8 +81,11 @@ class AddJobToQueue(Resource):
         self.job = self.schema.load(request.args)
         console.print(self.job.dict())
 
+
 api.add_resource(LookupByWikidataQid, "/wikidata-qid/<string:qid>")
-api.add_resource(AddJobToQueue, "/add-job") #?lang=<string:language_code>&site=<string:wikimedia_site>&title=<string:title>")
+api.add_resource(
+    AddJobToQueue, "/add-job"
+)  # ?lang=<string:language_code>&site=<string:wikimedia_site>&title=<string:title>")
 
 if __name__ == "__main__":
     app.run(debug=True)

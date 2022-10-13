@@ -9,4 +9,3 @@ loglevel = logging.INFO
 # Login to rabbitmq bitnami container
 rabbitmq_username = ""
 rabbitmq_password = ""
-
