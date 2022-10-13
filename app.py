@@ -24,7 +24,8 @@ api = Api(app, prefix='/v1')
 
 
 class LookupByWikidataQid(Resource):
-    def get(self, qid=""):
+    @staticmethod
+    def get(qid=""):
         if qid:
             lwq = LookupWikicitationsQid()
             result: Union[Return, str] = lwq.lookup_via_query_service(wdqid=qid)
