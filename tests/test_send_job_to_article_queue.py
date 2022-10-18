@@ -14,4 +14,4 @@ class TestSendJobToArticleQueue(TestCase):
         queue = SendJobToArticleQueue(
             language_code="en", wikimedia_site="wikipedia", title="Test", testing=True
         )
-        queue.publish_to_article_queue()
+        assert queue.publish_to_article_queue() is True
