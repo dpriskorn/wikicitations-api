@@ -56,7 +56,11 @@ class AddJobToQueue(Resource):
             if self.job.testing:
                 return "ok", 200
             else:
-                return queue.publish_to_article_queue(), 200
+                queued = queue.publish_to_article_queue()
+                if queued:
+                    return "job queued", 201
+                else:
+                    return "server error, the job could not be queued", 500
         else:
             # Something was not valid, return a meaningful error
             logger.error("did not get what we need")

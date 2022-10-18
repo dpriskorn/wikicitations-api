@@ -14,7 +14,7 @@ class SendJobToArticleQueue(BaseModel):
     title: str
     testing: bool = False
 
-    def publish_to_article_queue(self):
+    def publish_to_article_queue(self) -> bool:
         logger.debug("publish_to_article_queue: Running")
         data = dict(
             title=self.title,
@@ -25,9 +25,11 @@ class SendJobToArticleQueue(BaseModel):
         logger.info(f"Publishing message with {data}")
         if not self.testing:
             work_queue = WorkQueue()
-            work_queue.publish(
+            return work_queue.publish(
                 message=bytes(
                     json.dumps(data),
                     "utf-8",
                 )
             )
+        else:
+            return False
