@@ -1,13 +1,11 @@
 import logging
 from typing import Optional
 
-import backoff
+import config
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.exceptions import AMQPConnectionError
 from pydantic import validate_arguments, BaseModel
-
-import config
 
 logger = logging.getLogger(__name__)
 
@@ -29,15 +27,19 @@ class WorkQueue(BaseModel):
         arbitrary_types_allowed = True
 
     @validate_arguments
-    def publish(self, message: bytes):
+    def publish(self, message: bytes) -> bool:
         """This publishes a message to the default work queue"""
-        self.__connect__()
+        try:
+            self.__connect__()
+        except AMQPConnectionError:
+            return False
         self.__setup_channel__()
         self.__create_queue__()
         self.__send_message__(message=message)
         self.__close_connection__()
+        return True
 
-    @backoff.on_exception(backoff.expo, AMQPConnectionError, max_time=60)
+    # @backoff.on_exception(backoff.expo, AMQPConnectionError, max_time=1)
     def __connect__(self):
         self.connection = BlockingConnection(
             ConnectionParameters(
@@ -58,6 +60,8 @@ class WorkQueue(BaseModel):
         self.connection.close()
 
     def __send_message__(self, message: bytes):
+        """Send the message to the queue"""
+        # TODO: Implement confirmation of delivery
         if self.channel:
             self.channel.basic_publish(
                 exchange="", routing_key=self.queue_name, body=message
